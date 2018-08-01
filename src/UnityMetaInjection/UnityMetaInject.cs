@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,13 +6,13 @@ using System.Text;
 
 namespace UnityMetaInjection
 {
-    public class AzureBlobStorageUnityMeta : IInjection
+    public class UnityMetaInject : IInjection
     {
         public string Yaml { get; }
         public Encoding Encoding { get; }
-        public IDictionary<string, INode> InjectionItems { get; } = new Dictionary<string, INode>();
+        public IDictionary<string, string> InjectionItems { get; } = new Dictionary<string, string>();
 
-        public AzureBlobStorageUnityMeta(string yaml, Encoding encoding)
+        public UnityMetaInject(string yaml, Encoding encoding)
         {
             Yaml = yaml;
             Encoding = encoding;
@@ -20,7 +20,6 @@ namespace UnityMetaInjection
 
         public void Inject()
         {
-            var keys = InjectionItems.Select(item => (item.Key, key: $"{new string(' ', item.Value.YamlIntendCount)}{item.Value.YamlKey}:", node: item.Value));
             if (IsLastlineEmpty())
             {
                 RemoveLastNewLine();
@@ -28,11 +27,19 @@ namespace UnityMetaInjection
             var inject = File.ReadLines(Yaml)
                 .Select(x =>
                 {
-                    foreach (var key in keys)
+                    foreach (var item in InjectionItems)
                     {
-                        if (x.StartsWith(key.key))
+                        var intend = 0;
+                        for (var i = 0; i < x.Length; i++)
                         {
-                            return $"{key.key} {key.node.YamlValue}";
+                            if (x[i] != ' ') break;
+                            intend++;
+                        }
+
+                        var key = $"{new string(' ', intend)}{item.Key}";
+                        if (x.StartsWith(key))
+                        {
+                            return $"{key} {item.Value}";
                         }
                     }
                     return x;
@@ -41,7 +48,7 @@ namespace UnityMetaInjection
             File.WriteAllText(Yaml, string.Join("\n", inject), Encoding);
         }
 
-        public void AddOrSet(string key, INode value)
+        public void AddOrSet(string key, string value)
         {
             if (InjectionItems.TryGetValue(key, out var result))
             {
@@ -84,7 +91,7 @@ namespace UnityMetaInjection
             }
         }
 
-        private INode GetInjectionValue(string key)
+        private string GetInjectionValue(string key)
         {
             if (InjectionItems.TryGetValue(key, out var result))
             {

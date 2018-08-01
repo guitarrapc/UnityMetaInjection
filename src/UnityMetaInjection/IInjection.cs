@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,8 +8,8 @@ namespace UnityMetaInjection
     {
         string Yaml { get; }
         Encoding Encoding { get; }
-        IDictionary<string, INode> InjectionItems { get; }
+        IDictionary<string, string> InjectionItems { get; }
         void Inject();
-        void AddOrSet(string key, INode value);
+        void AddOrSet(string key, string value);
     }
 }
