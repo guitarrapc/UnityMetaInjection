@@ -9,11 +9,10 @@ This tool inject to Unity YAML with commandline, so you can input Value to Unity
 
 ## Installation:cat:
 
+Requirement : .NET Core 2.0 or higher.
+
 1. Download .tar or .zip and extract it.
 1. `dotnet UnityMetaInjection.dll -h` to see help.
-
-
-.NET Core 2.0 or higher.
 
 ## Usage:question:
 
@@ -42,7 +41,9 @@ Options:
 
 ## Sample Usage:eyes:
 
-Inject to following Uniy's Scripable Object's Value.
+Let's see how to inject Unity's ScriptableObject's Key:Value.
+
+* Original YAML
 
 <details>
 <summary>Click here to show original yaml</summary>
@@ -68,13 +69,13 @@ MonoBehaviour:
 
 </details>
 
-Inject command will be like this.
+* Run Injection.
 
 ```shell
 dotnet UnityMetaInjection.dll -p "C:\workspace\UnitySample\AzureSettings.asset" -k storageAccount:STORAGE_ACCOUNT -k accessKey:YOUR_STORAGE_KEY -k container:CONTAINER
 ```
 
-Changed.
+* Check changes are as expected.
 
 <details>
 <summary>Click here to show changed yaml</summary>
