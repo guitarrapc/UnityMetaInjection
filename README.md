@@ -7,6 +7,14 @@ Inject specific key:value on Unity Yaml.
 Want to remove secrets from GitHub Source Management, but this led CI could not bundle with secret.
 This tool inject to Unity YAML with commandline, so you can input Value to Unity's Scritable Object on CI or any.
 
+## Installation:cat:
+
+1. Download .tar or .zip and extract it.
+1. `dotnet UnityMetaInjection.dll -h` to see help.
+
+
+.NET Core 2.0 or higher.
+
 ## Usage:question:
 
 ```shell
@@ -21,18 +29,25 @@ Options:
   -k|--kv       `Key:Value` yaml map pair to Inject
 ```
 
-## Arguments:turtle:
+<details>
+<summary>Arguments</summary>
+
 
 | Parameter | Required | Description | Usage | Tips |
 | ---- | ---- | ---- | ---- | ---- | 
 | -p | true | Path to the exising YAML | -p `<PATH TO THE YAML>` | YAML must exists. | 
 | -k | true | `:` separated KeyValue pair to inject. | -k hoge:fuga -k piyo:poyo | Only matched section will be replace. | 
 
+</details>
+
 ## Sample Usage:eyes:
 
 Inject to following Uniy's Scripable Object's Value.
 
-```meta
+<details>
+<summary>Click here to show original yaml</summary>
+
+```yaml
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
@@ -51,6 +66,8 @@ MonoBehaviour:
   container: 
 ```
 
+</details>
+
 Inject command will be like this.
 
 ```shell
@@ -59,7 +76,10 @@ dotnet UnityMetaInjection.dll -p "C:\workspace\UnitySample\AzureSettings.asset" 
 
 Changed.
 
-```shell
+<details>
+<summary>Click here to show changed yaml</summary>
+
+```yaml
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
@@ -77,3 +97,4 @@ MonoBehaviour:
   accessKey: YOUR_STORAGE_KEY
   container: CONTAINER
   ```
+  </details>
