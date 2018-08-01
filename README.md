@@ -21,14 +21,14 @@ Options:
   -k|--kv       `Key:Value` yaml map pair to Inject
 ```
 
-## Arguments:question:
+## Arguments:turtle:
 
 | Parameter | Required | Description | Usage | Tips |
 | ---- | ---- | ---- | ---- | ---- | 
 | -p | true | Path to the exising YAML | -p `<PATH TO THE YAML>` | YAML must exists. | 
 | -k | true | `:` separated KeyValue pair to inject. | -k hoge:fuga -k piyo:poyo | Only matched section will be replace. | 
 
-## Sample Usage:question:
+## Sample Usage:eyes:
 
 Inject to following Uniy's Scripable Object's Value.
 
