@@ -45,7 +45,7 @@ namespace UnityMetaInjection
                 var candidates = KeyValues.Where(x => x.Split(keyValueSeparator, StringSplitOptions.RemoveEmptyEntries).Length == 2).ToArray();
                 if (!candidates.Any())
                 {
-                    LogInfo("Please specify KeyValue with `:` separated key value.");
+                    LogInfo($"Please specify KeyValue with `{keyValueSeparator}` separated key value.");
                     app.ShowHelp();
                     return 1;
                 }
@@ -93,15 +93,18 @@ namespace UnityMetaInjection
 
         private void LogInfo(string message)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine($"INFO: {message}");
-            Console.ResetColor();
+            LogCore(ConsoleColor.DarkGray, message);
         }
 
         private void LogError(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Error: {message}");
+            LogCore(ConsoleColor.Red, message);
+        }
+
+        private void LogCore(ConsoleColor color, string message)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(message);
             Console.ResetColor();
         }
     }
