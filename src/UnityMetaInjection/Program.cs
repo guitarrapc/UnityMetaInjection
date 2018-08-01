@@ -23,12 +23,13 @@ namespace UnityMetaInjection
 
         private async Task<int> OnExecuteAsync(CommandLineApplication app)
         {
+            ILogger logger = new DefaultLogger();
             try
             {
                 // Validate Path
                 if (string.IsNullOrEmpty(Path))
                 {
-                    LogInfo("Please specify File path to inject.");
+                    logger.LogInfo("Please specify File path to inject.");
                     app.ShowHelp();
                     return 0;
                 }
@@ -36,7 +37,7 @@ namespace UnityMetaInjection
                 // Validate KeyValue
                 if (KeyValues == null || KeyValues.Length == 0)
                 {
-                    LogInfo("Please specify KeyValue to inject.");
+                    logger.LogInfo("Please specify KeyValue to inject.");
                     app.ShowHelp();
                     return 0;
                 }
@@ -45,7 +46,7 @@ namespace UnityMetaInjection
                 var candidates = KeyValues.Where(x => x.Split(keyValueSeparator, StringSplitOptions.RemoveEmptyEntries).Length == 2).ToArray();
                 if (!candidates.Any())
                 {
-                    LogInfo($"Please specify KeyValue with `{keyValueSeparator}` separated key value.");
+                    logger.LogInfo($"Please specify KeyValue with `{keyValueSeparator}` separated key value.");
                     app.ShowHelp();
                     return 1;
                 }
@@ -55,57 +56,56 @@ namespace UnityMetaInjection
                     var dropped = KeyValues.Except(candidates).ToArray();
                     if (dropped.Any())
                     {
-                        LogInfo($"Dropped unexpected keyvalue style input. [Dropped KeyValue] {string.Join(", ", dropped)}");
+                        logger.LogInfo($"Dropped unexpected keyvalue style input. [Dropped KeyValue] {string.Join(", ", dropped)}");
                     }
                 }
 
                 // Execution Plan
-                LogInfo($"[ExecutePlan] -p {Path} -k {string.Join(" -k ", candidates)}");
+                logger.LogInfo($"[ExecutePlan] -p {Path} -k {string.Join(" -k ", candidates)}");
 
-                // Prepare
-                IInjection unityMeta = new UnityMetaInject(Path, new System.Text.UTF8Encoding(false));
+                // Prepare injection
+                var inject = new UnityMetaInject(Path, new System.Text.UTF8Encoding(false));
+                inject.BindLogger(logger);
+                inject.RegisterNotifier(change => { logger.LogInfo($"[Injecting] Injection executed. {nameof(change.Line)}: {change.Line}, {nameof(change.Before)}: {change.Before}, {nameof(change.After)}: {change.After}"); });
                 foreach (var candidate in candidates)
                 {
                     var kv = candidate.Split(keyValueSeparator, StringSplitOptions.RemoveEmptyEntries).ToArray();
-                    unityMeta.AddOrSet(kv[0], kv[1]);
+                    inject.AddOrSetRecord(kv[0], kv[1]);
                 }
 
-                // Execute
-                LogInfo($"[BeginInjection] {string.Join(", ", unityMeta.InjectionItems.Select(x => $"Key : {x.Key}, Value : {x.Value}"))}");
-                unityMeta.Inject();
-
-                // Result
-                if (!unityMeta.Validate())
-                {
-                    LogError("[Unexpected] Injected but unexpected result detected.");
-
-                    // TODO : ROLLBACK (need memonize before)
-                }
-
-                return unityMeta.Validate() ? 0 : 1;
+                // Run
+                return Run(inject, logger);
             }
             catch (Exception ex)
             {
-                LogError($"{ex.GetType().FullName}, {ex.Message} {ex.StackTrace}");
+                logger.LogError($"{ex.GetType().FullName}, {ex.Message} {ex.StackTrace}");
                 return 1;
             }
         }
 
-        private void LogInfo(string message)
+        private int Run(IInject inject, ILogger logger)
         {
-            LogCore(ConsoleColor.DarkGray, message);
-        }
+            // Save current before inject
+            inject.Save();
 
-        private void LogError(string message)
-        {
-            LogCore(ConsoleColor.Red, message);
-        }
+            // Execute
+            logger.LogInfo($"[BeginInjection] {string.Join(", ", inject.InjectionItems.Select(x => $"Key : {x.Key}, Value : {x.Value}"))}");
+            inject.Inject();
+            var result = inject.Validate();
 
-        private void LogCore(ConsoleColor color, string message)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            // Check Result
+            if (!result)
+            {
+                logger.LogError("[Unexpected] Injected but unexpected result detected. Rollbacking to before injection...");
+
+                // RollBack
+                inject.Rollback();
+
+                logger.LogError("[Rollback] Completely rollback to before injection.");
+            }
+
+            logger.LogInfo($"[CompleteInjection] Injection {(result ? "completed" : "rollbacked")}.");
+            return result ? 0 : 1;
         }
     }
 }

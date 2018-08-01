@@ -4,13 +4,14 @@ using System.Text;
 
 namespace UnityMetaInjection
 {
-    public interface IInjection
+    public interface IInject
     {
-        string Yaml { get; }
-        Encoding Encoding { get; }
         IDictionary<string, string> InjectionItems { get; }
+
         void Inject();
         bool Validate();
-        void AddOrSet(string key, string value);
+        void Save();
+        void Rollback();
+        void AddOrSetRecord(string key, string value);
     }
 }
