@@ -43,10 +43,14 @@ Options:
 
 Let's see how to inject Unity's ScriptableObject's Key:Value.
 
-* Original YAML
+Run Injection.
+
+```shell
+dotnet UnityMetaInjection.dll -p "C:\workspace\UnitySample\AzureSettings.asset" -k storageAccount:STORAGE_ACCOUNT -k accessKey:YOUR_STORAGE_KEY -k container:CONTAINER
+```
 
 <details>
-<summary>Click here to show original yaml</summary>
+<summary>Original YAML</summary>
 
 ```yaml
 %YAML 1.1
@@ -69,16 +73,8 @@ MonoBehaviour:
 
 </details>
 
-* Run Injection.
-
-```shell
-dotnet UnityMetaInjection.dll -p "C:\workspace\UnitySample\AzureSettings.asset" -k storageAccount:STORAGE_ACCOUNT -k accessKey:YOUR_STORAGE_KEY -k container:CONTAINER
-```
-
-* Check changes are as expected.
-
 <details>
-<summary>Click here to show changed yaml</summary>
+<summary>Injected YAML</summary>
 
 ```yaml
 %YAML 1.1
