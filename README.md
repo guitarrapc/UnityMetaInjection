@@ -96,3 +96,29 @@ MonoBehaviour:
   container: CONTAINER
   ```
   </details>
+
+## Build
+
+Use docker if possible.
+In case you want to use ubutnu, see [dotnet-core](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x) to provision environment.
+
+```bash
+wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+
+sudo apt-get install apt-transport-https
+sudo apt-get update
+sudo apt-get install dotnet-sdk-2.0.3
+```
+
+bash build.
+
+```bash
+. src/build.sh
+```
+
+pwsh build.
+
+```
+pwsh -f src/build.ps1
+```
