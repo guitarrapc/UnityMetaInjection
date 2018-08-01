@@ -2,12 +2,12 @@
 
 Inject specific key:value on Unity Yaml.
 
-## Motivation :thought_balloon:
+## Motivation:thought_balloon:
 
 Want to remove secrets from GitHub Source Management, but this led CI could not bundle with secret.
 This tool inject to Unity YAML with commandline, so you can input Value to Unity's Scritable Object on CI or any.
 
-## Usage
+## Usage:question:
 
 ```shell
 $ dotnet UnityMetaInjection.dll -h
@@ -21,14 +21,14 @@ Options:
   -k|--kv       `Key:Value` yaml map pair to Inject
 ```
 
-## Arguments
+## Arguments:question:
 
 | Parameter | Required | Description | Usage | Tips |
 | ---- | ---- | ---- | ---- | ---- | 
 | -p | true | Path to the exising YAML | -p `<PATH TO THE YAML>` | YAML must exists. | 
 | -k | true | `:` separated KeyValue pair to inject. | -k hoge:fuga -k piyo:poyo | Only matched section will be replace. | 
 
-## Sample Usage
+## Sample Usage:question:
 
 Inject to following Uniy's Scripable Object's Value.
 
