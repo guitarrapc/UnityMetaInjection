@@ -11,7 +11,8 @@ This tool inject to Unity YAML with commandline, so you can input Value to Unity
 
 Requirement : .NET Core 2.0 or higher.
 
-1. Download .tar or .zip and extract it.
+1. Access to the [Release](https://github.com/guitarrapc/UnityMetaInjection/releases) Page.
+1. Download latest release's .tar or .zip and extract it.
 1. `dotnet UnityMetaInjection.dll -h` to see help.
 
 ## Usage:question:
