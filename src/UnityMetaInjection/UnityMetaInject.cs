@@ -11,6 +11,8 @@ namespace UnityMetaInjection
         public string Yaml { get; }
         public Encoding Encoding { get; }
         public IDictionary<string, string> InjectionItems { get; } = new Dictionary<string, string>();
+        private IDictionary<int, string> before = new Dictionary<int, string>();
+        private IDictionary<int, string> after = new Dictionary<int, string>();
 
         public UnityMetaInject(string yaml, Encoding encoding)
         {
@@ -25,27 +27,20 @@ namespace UnityMetaInjection
                 RemoveLastNewLine();
             }
             var inject = File.ReadLines(Yaml)
-                .Select(x =>
-                {
-                    foreach (var item in InjectionItems)
-                    {
-                        var intend = 0;
-                        for (var i = 0; i < x.Length; i++)
-                        {
-                            if (x[i] != ' ') break;
-                            intend++;
-                        }
-
-                        var key = $"{new string(' ', intend)}{item.Key}";
-                        if (x.StartsWith(key))
-                        {
-                            return $"{key} {item.Value}";
-                        }
-                    }
-                    return x;
-                })
+                .Select(x => EvaluateLineItem(x))
+                .Select(x => x.line)
                 .ToArray();
             File.WriteAllText(Yaml, string.Join("\n", inject), Encoding);
+        }
+
+        public bool Validate()
+        {
+            var validate = File.ReadLines(Yaml)
+                .Select(x => EvaluateLineItem(x))
+                .Where(x => x.hit)
+                .Select(x => x.result)
+                .All(x => x);
+            return validate;
         }
 
         public void AddOrSet(string key, string value)
@@ -62,6 +57,26 @@ namespace UnityMetaInjection
             {
                 InjectionItems.Add(key, value);
             }
+        }
+
+        private (string line, bool hit, bool result) EvaluateLineItem(string x)
+        {
+            var intend = 0;
+            for (var i = 0; i < x.Length; i++)
+            {
+                if (x[i] != ' ') break;
+                intend++;
+            }
+            foreach (var item in InjectionItems)
+            {
+                var key = $"{new string(' ', intend)}{item.Key}";
+                if (x.StartsWith(key))
+                {
+                    var newline = $"{key} {item.Value}";
+                    return (line: newline, hit: true, result: x == newline);
+                }
+            }
+            return (line: x, hit: false, result: false);
         }
 
         private bool IsLastlineEmpty()

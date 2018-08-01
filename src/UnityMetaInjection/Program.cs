@@ -13,6 +13,7 @@ namespace UnityMetaInjection
         static Task<int> Main(string[] args) => CommandLineApplication.ExecuteAsync<Program>(args);
 
         [Option(CommandOptionType.SingleValue, Template = "-p|--path", Description = "The Unity YAML Path to inject.")]
+        [FileExists]
         public string Path { get; }
 
         [Option(CommandOptionType.MultipleValue, Template = "-k|--kv", Description = "`Key:Value` yaml map pair to Inject")]
@@ -40,13 +41,6 @@ namespace UnityMetaInjection
                     return 0;
                 }
 
-                // Path Check
-                if (!File.Exists(Path))
-                {
-                    LogInfo($"Specified path not found. Please confirm path existing : {Path}");
-                    return 1;
-                }
-
                 // Drop unexpected KeyValue argument
                 var candidates = KeyValues.Where(x => x.Split(keyValueSeparator, StringSplitOptions.RemoveEmptyEntries).Length == 2).ToArray();
                 if (!candidates.Any())
@@ -69,19 +63,26 @@ namespace UnityMetaInjection
                 LogInfo($"[ExecutePlan] -p {Path} -k {string.Join(" -k ", candidates)}");
 
                 // Prepare
-                IInjection azureMeta = new UnityMetaInject(Path, new System.Text.UTF8Encoding(false));
+                IInjection unityMeta = new UnityMetaInject(Path, new System.Text.UTF8Encoding(false));
                 foreach (var candidate in candidates)
                 {
                     var kv = candidate.Split(keyValueSeparator, StringSplitOptions.RemoveEmptyEntries).ToArray();
-                    azureMeta.AddOrSet(kv[0], kv[1]);
+                    unityMeta.AddOrSet(kv[0], kv[1]);
                 }
 
                 // Execute
-                LogInfo($"[BeginInjection] {string.Join(", ", azureMeta.InjectionItems.Select(x => $"Key : {x.Key}, Value : {x.Value}"))}");
-                azureMeta.Inject();
+                LogInfo($"[BeginInjection] {string.Join(", ", unityMeta.InjectionItems.Select(x => $"Key : {x.Key}, Value : {x.Value}"))}");
+                unityMeta.Inject();
 
                 // Result
-                return 0;
+                if (!unityMeta.Validate())
+                {
+                    LogError("[Unexpected] Injected but unexpected result detected.");
+
+                    // TODO : ROLLBACK (need memonize before)
+                }
+
+                return unityMeta.Validate() ? 0 : 1;
             }
             catch (Exception ex)
             {

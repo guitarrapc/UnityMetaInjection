@@ -10,6 +10,7 @@ namespace UnityMetaInjection
         Encoding Encoding { get; }
         IDictionary<string, string> InjectionItems { get; }
         void Inject();
+        bool Validate();
         void AddOrSet(string key, string value);
     }
 }
