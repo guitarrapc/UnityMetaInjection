@@ -72,7 +72,7 @@ namespace UnityMetaInjection
                 var key = $"{new string(' ', intend)}{item.Key}";
                 if (x.StartsWith(key))
                 {
-                    var newline = $"{key} {item.Value}";
+                    var newline = $"{key}: {item.Value}";
                     return (line: newline, hit: true, result: x == newline);
                 }
             }
